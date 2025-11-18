@@ -9,8 +9,10 @@ export const metadata: Metadata = {
   title: 'Simple Task Tracker',
   description: 'Simple task management for teams and individuals',
   authors: [{ name: 'Simple Task Tracker Team' }],
-  viewport: 'width=device-width, initial-scale=1',
-  themeColor: '#2563EB',
+}
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({

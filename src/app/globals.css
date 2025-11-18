@@ -5,16 +5,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Colors */
+  /* Primary Brand Colors */
   --primary-blue: #2563EB;
-  --gray-600: #6B7280;
+  --primary-blue-hover: #1D4ED8;
+  
+  /* Neutral Colors */
   --white: #FFFFFF;
-  --success-green: #10B981;
-  --error-red: #EF4444;
-  --warning-yellow: #F59E0B;
+  --gray-300: #D1D5DB;
+  --gray-500: #6B7280;
+  --gray-600: #6B7280;
+  
+  /* Semantic Colors - for UI states and feedback */
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-danger: #EF4444;
+  --color-warning: #F59E0B;
+  
+  /* Tailwind-Compatible Color Scale */
+  --blue-600: #2563EB;
+  --blue-700: #1D4ED8;
+  --green-500: #10B981;
+  --red-500: #EF4444;
+  --red-600: #DC2626;
+  --yellow-500: #F59E0B;
   
   /* Typography */
   --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  /* Shadows */
+  --shadow-focus: 0 0 0 2px var(--primary-blue), 0 0 0 4px rgba(37, 99, 235, 0.1);
+  --shadow-focus-error: 0 0 0 2px var(--color-error), 0 0 0 4px rgba(239, 68, 68, 0.1);
 }
 
 body {
@@ -26,52 +46,146 @@ body {
 
 /* Custom Components */
 .task-card {
-  @apply bg-white border border-gray-300 rounded-lg p-4 mb-2 transition-all duration-200 hover:shadow-md;
+  background-color: var(--white);
+  border: 1px solid var(--gray-300);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s;
 }
 
 .task-card:hover {
-  @apply shadow-sm;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .task-card.completed {
-  @apply opacity-60;
+  opacity: 0.6;
 }
 
 .task-card.completed .task-title {
-  @apply line-through text-gray-500;
+  text-decoration: line-through;
+  color: var(--gray-500);
 }
 
 .btn-primary {
-  @apply bg-blue-600 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  background-color: var(--blue-600);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-blue-hover);
+}
+
+.btn-primary:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus);
 }
 
 .btn-secondary {
-  @apply bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md font-medium transition-colors duration-200 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  background-color: var(--white);
+  color: var(--blue-600);
+  border: 1px solid var(--blue-600);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(37, 99, 235, 0.05);
+}
+
+.btn-secondary:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus);
 }
 
 .btn-ghost {
-  @apply bg-transparent text-blue-600 px-4 py-2 rounded-md font-medium transition-colors duration-200 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  background-color: transparent;
+  color: var(--blue-600);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-ghost:hover {
+  background-color: rgba(37, 99, 235, 0.05);
+}
+
+.btn-ghost:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus);
 }
 
 .btn-danger {
-  @apply bg-transparent text-red-600 px-4 py-2 rounded-md font-medium transition-colors duration-200 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  background-color: transparent;
+  color: var(--red-600);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-danger:hover {
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.btn-danger:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus-error);
 }
 
 .input-field {
-  @apply border border-gray-300 rounded-md px-3 py-2 w-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:ring-offset-2;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--blue-600);
+  box-shadow: var(--shadow-focus);
 }
 
 .input-field.error {
-  @apply border-red-500 focus:ring-red-500;
+  border-color: var(--color-error);
+}
+
+.input-field.error:focus {
+  box-shadow: var(--shadow-focus-error);
 }
 
 .checkbox-custom {
-  @apply w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--blue-600);
+  border: 1px solid var(--gray-300);
+  border-radius: 0.25rem;
+}
+
+.checkbox-custom:focus {
+  box-shadow: var(--shadow-focus);
 }
 
 /* Loading States */
 .loading-spinner {
-  @apply animate-spin rounded-full border-2 border-gray-300 border-t-blue-600;
+  animation: spin 1s linear infinite;
+  border-radius: 50%;
+  border: 2px solid var(--gray-300);
+  border-top-color: var(--blue-600);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Success Animation */
@@ -94,11 +208,13 @@ body {
 /* Responsive Utilities */
 @media (max-width: 768px) {
   .task-card {
-    @apply p-3 mb-1;
+    padding: 0.75rem;
+    margin-bottom: 0.25rem;
   }
   
-  .btn-primary, .btn-secondary, .btn-ghost {
-    @apply px-3 py-2 text-sm;
+  .btn-primary, .btn-secondary, .btn-ghost, .btn-danger {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
   }
 }
 
@@ -116,7 +232,8 @@ body {
 }
 
 .focus-visible:focus {
-  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+  outline: none;
+  box-shadow: var(--shadow-focus);
 }
 
 /* Dark mode support (future feature) */

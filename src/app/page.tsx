@@ -1,69 +1,135 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-
-interface Task {
-  id: string
-  title: string
-  description?: string
-  completed: boolean
-  dueDate?: string
-  priority: 'low' | 'medium' | 'high'
-}
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
+import { taskService } from '@/lib/database'
+import { Task, TaskInsert } from '@/lib/supabase'
 
 export default function Dashboard() {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: '1',
-      title: 'Complete project documentation',
-      description: 'Finish the technical documentation for the new feature',
-      completed: false,
-      dueDate: '2024-11-20',
-      priority: 'high'
-    },
-    {
-      id: '2',
-      title: 'Review pull requests',
-      description: 'Check and approve pending PRs',
-      completed: false,
-      dueDate: '2024-11-19',
-      priority: 'medium'
-    },
-    {
-      id: '3',
-      title: 'Update dependencies',
-      description: 'Update npm packages to latest versions',
-      completed: true,
-      dueDate: '2024-11-18',
-      priority: 'low'
-    }
-  ])
-
+  const [tasks, setTasks] = useState<Task[]>([])
   const [newTaskTitle, setNewTaskTitle] = useState('')
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  
+  const { user, signOut } = useAuth()
+  const router = useRouter()
 
-  const addTask = () => {
-    if (newTaskTitle.trim()) {
-      const newTask: Task = {
-        id: Date.now().toString(),
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!user && !loading) {
+      router.push('/auth')
+    }
+  }, [user, loading, router])
+
+  // Fetch tasks when user is authenticated
+  useEffect(() => {
+    if (user) {
+      fetchTasks()
+      setupRealtimeSubscription()
+    }
+
+    return () => {
+      // Cleanup subscription on unmount
+      if (user) {
+        taskService.unsubscribe(null)
+      }
+    }
+  }, [user])
+
+  const fetchTasks = async () => {
+    try {
+      const tasks = await taskService.getTasks(user?.id || '')
+      setTasks(tasks)
+    } catch (error) {
+      console.error('Error fetching tasks:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const setupRealtimeSubscription = () => {
+    if (!user) return
+
+    taskService.subscribeToTasks(user.id, (payload) => {
+      console.log('Real-time update:', payload)
+      
+      switch (payload.eventType) {
+        case 'INSERT':
+          setTasks(prev => [payload.new, ...prev])
+          break
+        case 'UPDATE':
+          setTasks(prev => prev.map(task =>
+            task.id === payload.new.id ? payload.new : task
+          ))
+          break
+        case 'DELETE':
+          setTasks(prev => prev.filter(task => task.id !== payload.old.id))
+          break
+      }
+    })
+  }
+
+  const addTask = async () => {
+    if (!newTaskTitle.trim() || !user) return
+
+    setSubmitting(true)
+    try {
+      const newTask: TaskInsert = {
+        user_id: user.id,
         title: newTaskTitle.trim(),
         completed: false,
         priority: 'medium'
       }
-      setTasks([...tasks, newTask])
+
+      const createdTask = await taskService.createTask(newTask)
+      setTasks(prev => [createdTask, ...prev])
       setNewTaskTitle('')
+    } catch (error) {
+      console.error('Error adding task:', error)
+    } finally {
+      setSubmitting(false)
     }
   }
 
-  const toggleTask = (id: string) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ))
+  const openTaskForm = () => {
+    // This could open a modal with TaskForm component
+    // For now, we'll use the simple input approach
+    console.log('Task form modal would open here')
   }
 
-  const deleteTask = (id: string) => {
-    setTasks(tasks.filter(task => task.id !== id))
+  const toggleTask = async (id: string) => {
+    const task = tasks.find(t => t.id === id)
+    if (!task) return
+
+    try {
+      const updatedTask = await taskService.toggleTask(id, !task.completed)
+      setTasks(prev => prev.map(t =>
+        t.id === id ? updatedTask : t
+      ))
+    } catch (error) {
+      console.error('Error updating task:', error)
+    }
+  }
+
+  const deleteTask = async (id: string) => {
+    try {
+      await taskService.deleteTask(id)
+      setTasks(prev => prev.filter(task => task.id !== id))
+    } catch (error) {
+      console.error('Error deleting task:', error)
+    }
+  }
+
+  const handleSignOut = async () => {
+    const { error } = await signOut()
+    if (error) {
+      console.error('Error signing out:', error)
+    } else {
+      router.push('/auth')
+    }
   }
 
   const filteredTasks = tasks.filter(task => {
@@ -84,6 +150,22 @@ export default function Dashboard() {
     }
   }
 
+  // Show loading or redirect to auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null // Will redirect to auth
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -97,13 +179,16 @@ export default function Dashboard() {
               </p>
             </div>
             <nav className="flex space-x-4">
-              <Link 
-                href="/settings" 
+              <Link
+                href="/settings"
                 className="text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Settings
               </Link>
-              <button className="text-gray-600 hover:text-gray-900 transition-colors">
+              <button
+                onClick={handleSignOut}
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
                 Logout
               </button>
             </nav>
@@ -126,10 +211,10 @@ export default function Dashboard() {
             />
             <button
               onClick={addTask}
-              disabled={!newTaskTitle.trim()}
+              disabled={!newTaskTitle.trim() || submitting}
               className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Add Task
+              {submitting ? 'Adding...' : 'Add Task'}
             </button>
           </div>
         </div>
@@ -158,8 +243,8 @@ export default function Dashboard() {
           {filteredTasks.length === 0 ? (
             <div className="bg-white rounded-lg shadow-sm p-8 text-center">
               <p className="text-gray-600">
-                {filter === 'completed' 
-                  ? 'No completed tasks yet' 
+                {filter === 'completed'
+                  ? 'No completed tasks yet'
                   : filter === 'active'
                   ? 'No active tasks'
                   : 'No tasks yet. Add your first task above!'
@@ -178,7 +263,7 @@ export default function Dashboard() {
                     className="checkbox-custom"
                     aria-label={`Mark ${task.title} as ${task.completed ? 'incomplete' : 'complete'}`}
                   />
-                  
+                   
                   {/* Task Content */}
                   <div className="flex-1">
                     <h3 className="task-title font-medium text-gray-900">
@@ -196,21 +281,21 @@ export default function Dashboard() {
                       )}
                       
                       {/* Due Date */}
-                      {task.dueDate && (
+                      {task.due_date && (
                         <span className="text-xs text-gray-500">
-                          Due: {new Date(task.dueDate).toLocaleDateString()}
+                          Due: {new Date(task.due_date).toLocaleDateString()}
                         </span>
                       )}
                     </div>
                   </div>
-                  
+                   
                   {/* Actions */}
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/task/${task.id}`}
                       className="btn-ghost text-sm"
                     >
-                      Edit
+                      Edit Details
                     </Link>
                     <button
                       onClick={() => deleteTask(task.id)}

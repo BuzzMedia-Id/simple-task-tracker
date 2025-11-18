@@ -1,16 +1,4 @@
 {
-  "version": 2,
-  "name": "simple-task-tracker",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key"
-  },
   "functions": {
     "src/app/**/*.ts": {
       "maxDuration": 30

@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Colors */
+  --primary-blue: #2563EB;
+  --gray-600: #6B7280;
+  --white: #FFFFFF;
+  --success-green: #10B981;
+  --error-red: #EF4444;
+  --warning-yellow: #F59E0B;
+  
+  /* Typography */
+  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--font-inter);
+  background-color: var(--white);
+  color: var(--gray-600);
+  line-height: 1.5;
+}
+
+/* Custom Components */
+.task-card {
+  @apply bg-white border border-gray-300 rounded-lg p-4 mb-2 transition-all duration-200 hover:shadow-md;
+}
+
+.task-card:hover {
+  @apply shadow-sm;
+}
+
+.task-card.completed {
+  @apply opacity-60;
+}
+
+.task-card.completed .task-title {
+  @apply line-through text-gray-500;
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.btn-secondary {
+  @apply bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md font-medium transition-colors duration-200 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.btn-ghost {
+  @apply bg-transparent text-blue-600 px-4 py-2 rounded-md font-medium transition-colors duration-200 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.btn-danger {
+  @apply bg-transparent text-red-600 px-4 py-2 rounded-md font-medium transition-colors duration-200 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+}
+
+.input-field {
+  @apply border border-gray-300 rounded-md px-3 py-2 w-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:ring-offset-2;
+}
+
+.input-field.error {
+  @apply border-red-500 focus:ring-red-500;
+}
+
+.checkbox-custom {
+  @apply w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2;
+}
+
+/* Loading States */
+.loading-spinner {
+  @apply animate-spin rounded-full border-2 border-gray-300 border-t-blue-600;
+}
+
+/* Success Animation */
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.checkmark-animation {
+  animation: checkmark 0.3s ease-in-out;
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .task-card {
+    @apply p-3 mb-1;
+  }
+  
+  .btn-primary, .btn-secondary, .btn-ghost {
+    @apply px-3 py-2 text-sm;
+  }
+}
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.focus-visible:focus {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+/* Dark mode support (future feature) */
+@media (prefers-color-scheme: dark) {
+  /* Dark mode styles can be added here */
+}
